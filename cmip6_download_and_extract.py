@@ -134,52 +134,51 @@ xs,ys = m(lons,lats)
 psar = ((regrid_res/25)**2) * griddata((xs.ravel(),ys.ravel()),psa.ravel(),(xr,yr),'nearest')
 
 data = {}
-for model in models:
-    #GET COMMON REALISATIONS FOR ALL VARIABLES, HISTORICAL AND FUTURE
-    common_internal = []
-    for variable in range(nvars):
-        common_internal.append(get_common_ripfs(variables[variable]))
-    check_data = [len(n) for n in common_internal]
-    if 0 in check_data:
-        which_data = np.where(np.array(check_data)==0)
-        missing_var = np.array(variables)[which_data][0]
-        print('Unable to find any consistent data files that span the range '+str(y1)+'-'+str(y2)+' for '+missing_var+'. Please try an alternative range, e.g., dates prior to or after 2014, or try a different model')
+#GET COMMON REALISATIONS FOR ALL VARIABLES, HISTORICAL AND FUTURE
+common_internal = []
+for variable in range(nvars):
+    common_internal.append(get_common_ripfs(variables[variable]))
+check_data = [len(n) for n in common_internal]
+if 0 in check_data:
+    which_data = np.where(np.array(check_data)==0)
+    missing_var = np.array(variables)[which_data][0]
+    print('Unable to find any consistent data files that span the range '+str(y1)+'-'+str(y2)+' for '+missing_var+'. Please try an alternative range, e.g., dates prior to or after 2014, or try a different model')
+else:
+    all_common = common(common_internal)
+    if len(all_common) == 0:
+        print('No common realisations found between selected variables')
+        if (os.path.exists('./logs.txt')) & (os.path.exists('./data')) & (len(glob.glob('./s_*.txt'))>0):
+            shutil.rmtree('./data',ignore_errors=True)
+            os.remove('./logs.txt')
+            [os.remove(f) for f in glob.glob('./s_*.txt')]
     else:
-        all_common = common(common_internal)
-        if len(all_common) == 0:
-            print('No common realisations found between selected variables')
+        #READ AND PROCESS DATA
+        for ripf in all_common:
+            for variable in range(nvars):
+                print('Reading '+model+' '+ripf+' '+variables[variable]+' data...')
+                histf = sorted(glob.glob(base+'CMIP/*/'+model+'/historical/'+ripf+'/SI'+res+'/'+variables[variable]+'/gn/latest/*.nc'))
+                if len(histf) == 0:
+                    histf = sorted(glob.glob('./data/s_'+model+'_e_historical_f_'+res+'_v_'+variables[variable]+'/*'+ripf+'*'))
+                if ssp:
+                    sspf = sorted(glob.glob(base+'ScenarioMIP/*/'+model+'/'+ssp+'/'+ripf+'/SI'+res+'/'+variables[variable]+'/gn/latest/*.nc'))
+                    if len(sspf) == 0:
+                        sspf = sorted(glob.glob('./data/s_'+model+'_e_'+ssp+'_f_'+res+'_v_'+variables[variable]+'/*'+ripf+'*'))
+                    files = trim_files(histf+sspf)
+                else:
+                    files = trim_files(hist_files)
+                data[model+'_'+variables[variable]+'_'+ripf] = read(files,ripf,variables[variable])
+
+        clean = 'y'#input('Loading complete. Remove downloaded files on local disk to save space? y or n:\n')
+        if clean == 'y':
             if (os.path.exists('./logs.txt')) & (os.path.exists('./data')) & (len(glob.glob('./s_*.txt'))>0):
                 shutil.rmtree('./data',ignore_errors=True)
                 os.remove('./logs.txt')
                 [os.remove(f) for f in glob.glob('./s_*.txt')]
-        else:
-            #READ AND PROCESS DATA
-            for ripf in all_common:
-                for variable in range(nvars):
-                    print('Reading '+model+' '+ripf+' '+variables[variable]+' data...')
-                    histf = sorted(glob.glob(base+'CMIP/*/'+model+'/historical/'+ripf+'/SI'+res+'/'+variables[variable]+'/gn/latest/*.nc'))
-                    if len(histf) == 0:
-                        histf = sorted(glob.glob('./data/s_'+model+'_e_historical_f_'+res+'_v_'+variables[variable]+'/*'+ripf+'*'))
-                    if ssp:
-                        sspf = sorted(glob.glob(base+'ScenarioMIP/*/'+model+'/'+ssp+'/'+ripf+'/SI'+res+'/'+variables[variable]+'/gn/latest/*.nc'))
-                        if len(sspf) == 0:
-                            sspf = sorted(glob.glob('./data/s_'+model+'_e_'+ssp+'_f_'+res+'_v_'+variables[variable]+'/*'+ripf+'*'))
-                        files = trim_files(histf+sspf)
-                    else:
-                        files = trim_files(hist_files)
-                    data[model+'_'+variables[variable]+'_'+ripf] = read(files,ripf,variables[variable])
-
-            clean = 'y'#input('Loading complete. Remove downloaded files on local disk to save space? y or n:\n')
-            if clean == 'y':
-                if (os.path.exists('./logs.txt')) & (os.path.exists('./data')) & (len(glob.glob('./s_*.txt'))>0):
-                    shutil.rmtree('./data',ignore_errors=True)
-                    os.remove('./logs.txt')
-                    [os.remove(f) for f in glob.glob('./s_*.txt')]
 
 if nvars == 1:
-    fname = './CMIP6_'+variables[0]+'_'+res+'_data_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
+    fname = './'+model+'_'+variables[0]+'_'+res+'_data_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
 else:
-    fname = './CMIP6_multivars_'+res+'_data_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
+    fname = './'+model+'_multivars_'+res+'_data_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
 f = open(fname,'wb')
 pickle.dump(data,f)
 f.close()
