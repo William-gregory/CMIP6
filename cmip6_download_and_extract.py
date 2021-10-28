@@ -123,11 +123,6 @@ regrid_res = 50 #km
 lonr,latr = m.makegrid(int((m.xmax-m.xmin)/(regrid_res*1000))+1, int((m.ymax-m.ymin)/(regrid_res*1000))+1)
 xr,yr = m(lonr,latr)
 dXR,dYR = xr.shape
-psa = np.fromfile('./nsidc_nt_siconc/north/psn25area_v3.dat',dtype='<i4').reshape(448,304)/1000
-lats = np.fromfile('./nsidc_nt_siconc/north/psn25lats_v3.dat',dtype='<i4').reshape(448,304)/100000
-lons = np.fromfile('./nsidc_nt_siconc/north/psn25lats_v3.dat',dtype='<i4').reshape(448,304)/100000
-xs,ys = m(lons,lats)
-psar = ((regrid_res/25)**2) * griddata((xs.ravel(),ys.ravel()),psa.ravel(),(xr,yr),'nearest')
 
 data = {}
 #GET COMMON REALISATIONS FOR ALL VARIABLES, HISTORICAL AND FUTURE
