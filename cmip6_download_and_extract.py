@@ -104,7 +104,7 @@ def read(files,ripf,var):
     if res == 'mon':
         ymin = round(np.min(years)/100) ; ymax = round(np.max(years)/100)
         data = data.transpose(1,2,0).reshape(dX,dY,12,ymax-ymin+1,order='F')
-        data = data[:,:,:,y1-ymin:y2-ymin+1]#.reshape((y2-y1+1)*12,dX,dY,order='F')
+        data = data[:,:,:,y1-ymin:y2-ymin+1].reshape(dX,dY,(y2-y1+1)*12,order='F')
     elif res == 'day':
         t0 = datetime.strptime("1/1/1850", "%m/%d/%Y")
         tplus = np.array([str(t0 + timedelta(days=t)).split(' ')[0] for t in times])
@@ -112,14 +112,10 @@ def read(files,ripf,var):
         endID = np.where(tplus==str(y2)+'-12-31')[0][0]
         data = data[startID:endID+1,:,:]
     dT = data.shape[3]
-    regrid = np.zeros((dXR,dYR,2,dT))*np.nan
+    regrid = np.zeros((dXR,dYR,dT))*np.nan
     for t in range(dT):
-        regrid[:,:,0,t] = griddata((x[NH],y[NH]),data[:,:,2,t][NH],(xr,yr),'nearest')
-        regrid[:,:,1,t] = griddata((x[NH],y[NH]),data[:,:,8,t][NH],(xr,yr),'nearest')
-    ts = []
-    for mnth in range(2):
-        ts.append(np.nansum(regrid[:,:,mnth,:]*(psar[:,:,np.newaxis]*1e6),(0,1)))
-    return np.array(ts)
+        regrid[:,:,t] = griddata((x[NH],y[NH]),data[:,:,t][NH],(xr,yr),'nearest')
+    return regrid
    
 #DEFINE A NEW 50km GRID
 m = Basemap(projection='npstere',boundinglat=50,lon_0=360,resolution='l')
