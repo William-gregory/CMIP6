@@ -120,8 +120,8 @@ def read(files,ripf,var):
     for mnth in range(2):
         ts.append(np.nansum(regrid[:,:,mnth,:]*(psar[:,:,np.newaxis]*1e6),(0,1)))
     return np.array(ts)
-    
-#DEFINE A NEW GRID
+   
+#DEFINE A NEW 50km GRID
 m = Basemap(projection='npstere',boundinglat=50,lon_0=360,resolution='l')
 regrid_res = 50 #km
 lonr,latr = m.makegrid(int((m.xmax-m.xmin)/(regrid_res*1000))+1, int((m.ymax-m.ymin)/(regrid_res*1000))+1)
@@ -131,14 +131,10 @@ psa = np.fromfile('./nsidc_nt_siconc/north/psn25area_v3.dat',dtype='<i4').reshap
 lats = np.fromfile('./nsidc_nt_siconc/north/psn25lats_v3.dat',dtype='<i4').reshape(448,304)/100000
 lons = np.fromfile('./nsidc_nt_siconc/north/psn25lats_v3.dat',dtype='<i4').reshape(448,304)/100000
 xs,ys = m(lons,lats)
-psar = 4*griddata((xs.ravel(),ys.ravel()),psa.ravel(),(xr,yr),'nearest')
+psar = ((regrid_res/25)**2) * griddata((xs.ravel(),ys.ravel()),psa.ravel(),(xr,yr),'nearest')
 
 data = {}
 for model in models:
-    if model == 'CAMS-CSM1-0':
-        y2 = 2099
-    else:
-        y2 = 2100
     #GET COMMON REALISATIONS FOR ALL VARIABLES, HISTORICAL AND FUTURE
     common_internal = []
     for variable in range(nvars):
