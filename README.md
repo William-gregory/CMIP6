@@ -11,4 +11,6 @@ The second shows how the data are unavailable on JASMIN and must be downloaded r
 
 ![alt text](https://github.com/William-gregory/CMIP6/blob/main/images/example2.png)
 
+It is also worth noting that sometimes the remote download can fail for various reasons, and in some cases can be overcome simply by re-running the code. For specific bugs relating to the remote download, please contact Thiago Loureiro (thiago@tloureiro.com).
+
 
