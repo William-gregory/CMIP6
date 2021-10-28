@@ -111,7 +111,7 @@ def read(files,ripf,var):
         startID = np.where(tplus==str(y1)+'-01-01')[0][0]
         endID = np.where(tplus==str(y2)+'-12-31')[0][0]
         data = data[startID:endID+1,:,:]
-    dT = data.shape[3]
+    dT = data.shape[2]
     regrid = np.zeros((dXR,dYR,dT))*np.nan
     for t in range(dT):
         regrid[:,:,t] = griddata((x[NH],y[NH]),data[:,:,t][NH],(xr,yr),'nearest')
@@ -161,7 +161,7 @@ else:
                         sspf = sorted(glob.glob('./data/s_'+model+'_e_'+ssp+'_f_'+res+'_v_'+variables[variable]+'/*'+ripf+'*'))
                     files = trim_files(histf+sspf)
                 else:
-                    files = trim_files(hist_files)
+                    files = trim_files(histf)
                 data[model+'_'+variables[variable]+'_'+ripf] = read(files,ripf,variables[variable])
 
         clean = 'y'#input('Loading complete. Remove downloaded files on local disk to save space? y or n:\n')
