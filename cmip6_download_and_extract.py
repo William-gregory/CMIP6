@@ -172,9 +172,15 @@ else:
                 [os.remove(f) for f in glob.glob('./s_*.txt')]
 
 if nvars == 1:
-    fname = './'+model+'_'+variables[0]+'_'+res+'_data_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
+    if ssp:
+        fname = './'+model+'_'+variables[0]+'_'+res+'_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
+    else:
+        fname = './'+model+'_'+variables[0]+'_'+res+'_'+str(y1)+'-'+str(y2)+'.pkl'
 else:
-    fname = './'+model+'_multivars_'+res+'_data_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
+    if ssp:
+        fname = './'+model+'_multivars_'+res+'_'+ssp+'_'+str(y1)+'-'+str(y2)+'.pkl'
+    else:
+        fname = './'+model+'_multivars_'+res+'_'+str(y1)+'-'+str(y2)+'.pkl'
 f = open(fname,'wb')
 pickle.dump(data,f)
 f.close()
