@@ -110,7 +110,7 @@ def read(files,ripf,var):
         tplus = np.array([str(t0 + timedelta(days=t)).split(' ')[0] for t in times])
         startID = np.where(tplus==str(y1)+'-01-01')[0][0]
         endID = np.where(tplus==str(y2)+'-12-31')[0][0]
-        data = data[startID:endID+1,:,:]
+        data = data[startID:endID+1,:,:].transpose(1,2,0)
     dT = data.shape[2]
     regrid = np.zeros((dXR,dYR,dT))*np.nan
     for t in range(dT):
