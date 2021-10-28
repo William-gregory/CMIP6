@@ -3,4 +3,4 @@ Code used to download and extract data from CMIP6 models. The executable file cm
 
 Here are two examples. The first shows an example of where the data are available on JASMIN, and the second where they must be downloaded.
 
-![alt text](https://github.com/William-gregory/CMIP6/main/blob/example2.png)
+![alt text](https://github.com/William-gregory/CMIP6/blob/main/images/example1.png)
