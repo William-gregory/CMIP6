@@ -1,7 +1,10 @@
 # CMIP6
-The code in this repository can be used to download CMIP6 model outputs, and subsequently run complex networks analysis, as outlined in the article ![alt text](Gregory et al., 2022). 
+The code in this repository can be used to download CMIP6 model outputs, and subsequently run complex networks analysis, as outlined in the article [Gregory et al., 2022](https://tc.copernicus.org/preprints/tc-2021-387/tc-2021-387.pdf).
 
-Code used to download and extract data from CMIP6 models. The executable file `cmip6_download_and_extract.py` must be run on the UK computer server JASMIN, where it will search the JASMIN directories for available model ensembles which match the input description provided by the user. If it cannot find any files, it will resort to downloading the files remotely from the CMIP6 data portal (https://esgf-node.llnl.gov/projects/cmip6/) by using the download script created by Thiago Loureiro (https://github.com/tloureiro/cmip6_downloader). The extracted variable(s) are then regridded to a 50km polar stereographic grid and all ensembles for that model are then saved in a pickle file.
+![alt text](https://github.com/William-gregory/CMIP6/blob/main/images/network_connections.png)
+
+# Downloading data
+The executable file `cmip6_download_and_extract.py` must be run on the UK computer server JASMIN, where it will search the JASMIN directories for available model ensembles which match the input description provided by the user. If it cannot find any files, it will resort to downloading the files remotely from the CMIP6 data portal (https://esgf-node.llnl.gov/projects/cmip6/) by using the download script created by Thiago Loureiro (https://github.com/tloureiro/cmip6_downloader). The extracted variable(s) are then regridded to a 50km polar stereographic grid and all ensembles for that model are then saved in a pickle file.
 
 Note that the files `cmip6_download_and_extract.py` and `cmip6_downloader.py` are assumed to be in the same directory
 
