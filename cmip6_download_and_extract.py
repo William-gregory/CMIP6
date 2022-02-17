@@ -4,7 +4,6 @@ from netCDF4 import Dataset
 import os
 import pickle
 import shutil
-from mpl_toolkits.basemap import Basemap
 from scipy.interpolate import griddata
 from datetime import datetime,timedelta
 
@@ -23,6 +22,30 @@ variables = input('Please specify which variables. E.g., siconc,sithick:\n')
 variables = variables.split(',')
 nvars = len(variables)
 base = '/badc/cmip6/data/CMIP6/'
+
+def make_npstere_grid(boundinglat,lon_0,grid_res=25e3):
+    import pyproj as proj
+    p = proj.Proj('+proj=stere +R=6370997.0 +units=m +lon_0='+str(float(lon_0))+' +lat_ts=90.0 +lat_0=90.0',\
+                  preserve_units=True)
+    llcrnrlon = lon_0 - 45
+    urcrnrlon = lon_0 + 135
+    y_ = p(lon_0,boundinglat)[1]
+    llcrnrlat = p(np.sqrt(2.)*y_,0.,inverse=True)[1]
+    urcrnrlat = llcrnrlat
+    llcrnrx,llcrnry = p(llcrnrlon,llcrnrlat)
+    p = proj.Proj('+proj=stere +R=6370997.0 +units=m +lon_0='+str(float(lon_0))+' +lat_ts=90.0 +lat_0=90.0 +x_0='\
+                  +str(-llcrnrx)+' +y_0='+str(-llcrnry), preserve_units=True)
+    urcrnrx,urcrnry = p(urcrnrlon,urcrnrlat)
+
+    nx = int(urcrnrx/grid_res)+1
+    ny = int(urcrnry/grid_res)+1
+    dx = urcrnrx/(nx-1)
+    dy = urcrnry/(ny-1)
+
+    x = dx*np.indices((ny,nx),np.float32)[1,:,:]
+    y = dy*np.indices((ny,nx),np.float32)[0,:,:]
+    lon,lat = p(x,y,inverse=True)
+    return lon,lat,x,y,p
 
 def common(lists):
     return sorted(list(set.intersection(*map(set, lists))))
@@ -116,13 +139,8 @@ def read(files,ripf,var):
     for t in range(dT):
         regrid[:,:,t] = griddata((x[NH],y[NH]),data[:,:,t][NH],(xr,yr),'nearest')
     return regrid
-   
-#DEFINE A NEW 50km GRID
-m = Basemap(projection='npstere',boundinglat=50,lon_0=360,resolution='l')
-regrid_res = 50 #km
-lonr,latr = m.makegrid(int((m.xmax-m.xmin)/(regrid_res*1000))+1, int((m.ymax-m.ymin)/(regrid_res*1000))+1)
-xr,yr = m(lonr,latr)
-dXR,dYR = xr.shape
+  
+lonr,latr,xr,yr,m = make_npstere_grid(50,360,50e3)
 
 data = {}
 #GET COMMON REALISATIONS FOR ALL VARIABLES, HISTORICAL AND FUTURE
