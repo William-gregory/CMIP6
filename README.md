@@ -1,5 +1,5 @@
 # CMIP6
-The code in this repository can be used to download CMIP6 model outputs, and subsequently run complex networks analysis, as outlined in the article [Gregory et al., 2022](https://tc.copernicus.org/preprints/tc-2021-387/tc-2021-387.pdf).
+The code in this repository can be used to download CMIP6 model outputs, and subsequently run complex networks analysis, as outlined in the article [Gregory et al., 2022](https://tc.copernicus.org/articles/16/1653/2022/tc-16-1653-2022.pdf).
 
 <img src="https://github.com/William-gregory/CMIP6/blob/main/images/network_connections.png" width="600" height="500">
 
